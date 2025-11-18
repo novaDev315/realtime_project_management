@@ -12,17 +12,26 @@ import {
   ScheduleOutlined,
   ClockCircleOutlined,
   SettingOutlined,
+  WarningOutlined,
+  ApiOutlined,
+  ThunderboltOutlined,
+  TrophyOutlined,
 } from '@ant-design/icons'
 import KanbanBoard from '@/components/Board/KanbanBoard'
 import SprintBoard from '@/components/Sprint/SprintBoard'
 import AnalyticsDashboard from '@/components/Analytics/AnalyticsDashboard'
 import ResourceAllocation from '@/components/Analytics/ResourceAllocation'
+import RiskDashboard from '@/components/Analytics/RiskDashboard'
 import GanttChart from '@/components/Gantt/GanttChart'
 import ActivityFeed from '@/components/Notifications/ActivityFeed'
 import TimeTracker from '@/components/TimeTracking/TimeTracker'
 import TimeEntryList from '@/components/TimeTracking/TimeEntryList'
 import TimeReport from '@/components/TimeTracking/TimeReport'
 import CustomFieldBuilder from '@/components/CustomFields/CustomFieldBuilder'
+import StoryPointPoker from '@/components/Sprint/StoryPointPoker'
+import AvailabilityCalendar from '@/components/Resource/AvailabilityCalendar'
+import AutomationRules from '@/components/Automation/AutomationRules'
+import WebhookManager from '@/components/Automation/WebhookManager'
 
 const { Sider, Content } = Layout
 
@@ -42,6 +51,11 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
       label: 'Sprints',
     },
     {
+      key: 'planning-poker',
+      icon: <TrophyOutlined />,
+      label: 'Planning Poker',
+    },
+    {
       key: 'gantt',
       icon: <ScheduleOutlined />,
       label: 'Gantt Chart',
@@ -52,9 +66,19 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
       label: 'Analytics',
     },
     {
+      key: 'risk',
+      icon: <WarningOutlined />,
+      label: 'Risk & Bottlenecks',
+    },
+    {
       key: 'resources',
       icon: <TeamOutlined />,
       label: 'Resources',
+    },
+    {
+      key: 'availability',
+      icon: <CalendarOutlined />,
+      label: 'Availability',
     },
     {
       key: 'time-tracking',
@@ -65,6 +89,16 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
       key: 'custom-fields',
       icon: <SettingOutlined />,
       label: 'Custom Fields',
+    },
+    {
+      key: 'automation',
+      icon: <ThunderboltOutlined />,
+      label: 'Automation',
+    },
+    {
+      key: 'webhooks',
+      icon: <ApiOutlined />,
+      label: 'Webhooks',
     },
     {
       key: 'activity',
@@ -79,12 +113,25 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         return <KanbanBoard boardId="mock-board-id" />
       case 'sprints':
         return <SprintBoard projectId={projectId} />
+      case 'planning-poker':
+        return (
+          <StoryPointPoker
+            cardId="demo-card-1"
+            cardTitle="Implement user authentication"
+            currentPoints={5}
+            onPointsSelected={(points) => console.log('Points selected:', points)}
+          />
+        )
       case 'gantt':
         return <GanttChart projectId={projectId} />
       case 'analytics':
         return <AnalyticsDashboard projectId={projectId} />
+      case 'risk':
+        return <RiskDashboard projectId={projectId} />
       case 'resources':
         return <ResourceAllocation projectId={projectId} />
+      case 'availability':
+        return <AvailabilityCalendar projectId={projectId} />
       case 'time-tracking':
         return (
           <div className="space-y-6">
@@ -95,6 +142,10 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         )
       case 'custom-fields':
         return <CustomFieldBuilder projectId={projectId} />
+      case 'automation':
+        return <AutomationRules projectId={projectId} />
+      case 'webhooks':
+        return <WebhookManager projectId={projectId} />
       case 'activity':
         return <ActivityFeed projectId={projectId} />
       default:

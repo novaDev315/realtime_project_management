@@ -98,6 +98,77 @@ A cutting-edge real-time collaborative project management platform with live Kan
 - Position-based ordering
 - Flexible form builder interface
 
+#### 9. Story Point Poker (Planning Tool)
+- Real-time collaborative story point estimation
+- Fibonacci sequence voting cards (0-89)
+- Special cards (?, Coffee Break)
+- Live participant tracking with voting status
+- Reveal mechanism with consensus detection
+- Automatic average calculation
+- Accept and assign story points
+- Real-time voting updates via WebSocket
+
+#### 10. Risk & Bottleneck Detection
+- Project risk score calculation (0-100)
+- Multiple risk indicators:
+  - Overdue tasks monitoring
+  - Velocity decline detection
+  - Blocked tasks tracking
+  - Resource overallocation warnings
+  - Aging task analysis
+- Bottleneck analysis by column:
+  - WIP limit tracking
+  - Average card age
+  - Blocked card count
+  - Visual bottleneck identification
+- Actionable recommendations for risk mitigation
+
+#### 11. Team Availability Calendar
+- Visual team availability calendar
+- Time-off request management
+- Multiple time-off types:
+  - Vacation, Sick Leave, Personal
+  - Holidays, Conferences
+- Approval workflow (pending/approved/rejected)
+- Team capacity visualization
+- Upcoming time-off dashboard
+- Daily availability indicators
+
+#### 12. Workflow Automation
+- Custom automation rule creation
+- Multiple trigger types:
+  - Card created/moved/updated
+  - Status/assignee changed
+  - Due date approaching
+  - Sprint events
+- Automated actions:
+  - Assign users
+  - Add labels
+  - Change priority
+  - Add comments
+  - Send notifications
+  - Move to column
+- Conditional logic support
+- Rule execution tracking
+- Enable/disable rules
+- Execution count statistics
+
+#### 13. Webhook Integrations
+- Custom webhook configuration
+- Event subscription system
+- 9+ event types:
+  - Card events (create, update, move, delete)
+  - Sprint events (start, complete)
+  - Comment events
+  - Team member events
+  - Project updates
+- HMAC signature authentication
+- Custom headers support
+- Webhook testing functionality
+- Execution logs with status tracking
+- Success rate monitoring
+- Retry mechanism with failure tracking
+
 ## Tech Stack
 
 ### Frontend
@@ -440,31 +511,40 @@ All users see changes instantly:
 
 ## Development Status
 
-✅ All PRD Phase 1-3 Features Complete:
-- Real-Time Kanban Boards
-- Sprint Planning Module
-- Resource Allocation Manager
-- Interactive Gantt Charts
-- Team Collaboration Hub
-- Analytics Dashboard
-- Authentication System
-- WebSocket Infrastructure
-- Database Models & API
-- Redis Integration
+✅ All PRD Phase 1-3 Features Complete (100%):
+- Real-Time Kanban Boards ✅
+- Sprint Planning Module ✅
+- Resource Allocation Manager ✅
+- Interactive Gantt Charts ✅
+- Team Collaboration Hub ✅
+- Analytics Dashboard ✅
+- Authentication System ✅
+- WebSocket Infrastructure ✅
+- Database Models & API ✅
+- Redis Integration ✅
 
-✅ Phase 2 Should-Have Features:
-- Time Tracking Integration
-- Custom Fields & Forms
+✅ Phase 2 Should-Have Features (100%):
+- Time Tracking Integration ✅
+- Custom Fields & Forms ✅
+- Story Point Poker ✅
+- Risk & Bottleneck Detection ✅
+- Availability Calendar ✅
+- Workflow Automation ✅
+- Webhook Integrations ✅
+
+**Total Implementation:** 13 major features across 95+ components and 100+ files
 
 ## Future Enhancements (Post-MVP)
 - AI-powered insights and predictions
-- Advanced automation workflows
+- Predictive analytics using machine learning
 - Mobile native applications (iOS/Android)
 - Offline mode with sync
 - Advanced integrations (Slack, Teams, GitHub, etc.)
 - Custom reporting engine
 - Portfolio management for executives
 - White-label options for enterprise
+- Video conferencing integration
+- Screen sharing capabilities
 
 ## Contributing
 Contributions are welcome! Please read the contributing guidelines before submitting pull requests.
