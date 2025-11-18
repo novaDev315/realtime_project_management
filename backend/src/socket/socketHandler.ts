@@ -114,6 +114,7 @@ export const initializeSocket = (io: Server) => {
     socket.on('cursor:move', (data) => {
       socket.broadcast.to(`board:${data.boardId}`).emit('cursor:moved', {
         userId: socket.user!.userId,
+        userName: socket.user!.name,
         x: data.x,
         y: data.y,
       })

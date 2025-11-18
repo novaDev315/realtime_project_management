@@ -19,6 +19,7 @@ import { useBoardSocket } from '@/hooks/useSocket'
 import { Card as CardType } from '@/store/slices/boardSlice'
 import BoardColumn from './BoardColumn'
 import CardItem from '../Card/CardItem'
+import CursorOverlay from './CursorOverlay'
 
 interface KanbanBoardProps {
   boardId: string
@@ -27,6 +28,7 @@ interface KanbanBoardProps {
 export default function KanbanBoard({ boardId }: KanbanBoardProps) {
   const dispatch = useDispatch()
   const { currentBoard } = useSelector((state: RootState) => state.board)
+  const { user } = useSelector((state: RootState) => state.auth)
   const socket = useBoardSocket(boardId)
   const [activeCard, setActiveCard] = React.useState<CardType | null>(null)
 
@@ -157,21 +159,24 @@ export default function KanbanBoard({ boardId }: KanbanBoardProps) {
   }
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCorners}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
-      <div className="flex gap-4 p-6 overflow-x-auto h-full">
-        {currentBoard.columns.map((column) => (
-          <BoardColumn key={column._id} column={column} boardId={boardId} />
-        ))}
-      </div>
+    <div className="relative h-full">
+      <CursorOverlay boardId={boardId} currentUserId={user?.id || ''} />
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCorners}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="flex gap-4 p-6 overflow-x-auto h-full">
+          {currentBoard.columns.map((column) => (
+            <BoardColumn key={column._id} column={column} boardId={boardId} />
+          ))}
+        </div>
 
-      <DragOverlay>
-        {activeCard ? <CardItem card={activeCard} isDragging /> : null}
-      </DragOverlay>
-    </DndContext>
+        <DragOverlay>
+          {activeCard ? <CardItem card={activeCard} isDragging /> : null}
+        </DragOverlay>
+      </DndContext>
+    </div>
   )
 }

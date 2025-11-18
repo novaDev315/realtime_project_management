@@ -32,6 +32,7 @@ import StoryPointPoker from '@/components/Sprint/StoryPointPoker'
 import AvailabilityCalendar from '@/components/Resource/AvailabilityCalendar'
 import AutomationRules from '@/components/Automation/AutomationRules'
 import WebhookManager from '@/components/Automation/WebhookManager'
+import ScheduledTaskManager from '@/components/Automation/ScheduledTaskManager'
 
 const { Sider, Content } = Layout
 
@@ -101,6 +102,11 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
       label: 'Webhooks',
     },
     {
+      key: 'scheduled-tasks',
+      icon: <ClockCircleOutlined />,
+      label: 'Scheduled Tasks',
+    },
+    {
       key: 'activity',
       icon: <HistoryOutlined />,
       label: 'Activity',
@@ -146,6 +152,8 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         return <AutomationRules projectId={projectId} />
       case 'webhooks':
         return <WebhookManager projectId={projectId} />
+      case 'scheduled-tasks':
+        return <ScheduledTaskManager projectId={projectId} />
       case 'activity':
         return <ActivityFeed projectId={projectId} />
       default:

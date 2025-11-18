@@ -169,6 +169,28 @@ A cutting-edge real-time collaborative project management platform with live Kan
 - Success rate monitoring
 - Retry mechanism with failure tracking
 
+#### 14. Scheduled Tasks (Cron-based Automation)
+- Create scheduled tasks with cron expressions
+- Cron preset templates:
+  - Daily, Weekly, Monthly schedules
+  - Custom intervals (every 15 minutes, every 2 hours, etc.)
+  - Weekday-specific scheduling
+- Multiple action types:
+  - Create cards automatically
+  - Send scheduled reports
+  - Update sprints
+  - Send notifications
+  - Run automation rules
+- Timezone support (UTC, America/New_York, Europe/London, Asia/Tokyo, etc.)
+- Run task immediately (on-demand execution)
+- Task execution monitoring:
+  - Next run time calculation
+  - Execution count tracking
+  - Failure count monitoring
+  - Last run timestamp
+- Enable/disable scheduled tasks
+- Graceful shutdown with task cleanup
+
 ## Tech Stack
 
 ### Frontend
@@ -195,6 +217,8 @@ A cutting-edge real-time collaborative project management platform with live Kan
 - Helmet for security headers
 - Morgan for logging
 - Compression middleware
+- node-cron for scheduled task execution
+- cron-parser for cron expression parsing
 
 ## Project Structure
 

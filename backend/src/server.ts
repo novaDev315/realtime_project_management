@@ -21,6 +21,10 @@ import timeTrackingRoutes, { projectTimeTrackingRoutes } from './routes/timeTrac
 import customFieldRoutes, { projectCustomFieldRoutes } from './routes/customFields'
 import automationRoutes, { projectAutomationRoutes } from './routes/automation'
 import webhookRoutes, { projectWebhookRoutes } from './routes/webhooks'
+import scheduledTaskRoutes, { projectScheduledTaskRoutes } from './routes/scheduledTasks'
+
+// Services
+import { initializeScheduler, stopAllTasks } from './services/schedulerService'
 
 // Load environment variables
 dotenv.config()
@@ -63,6 +67,7 @@ app.use('/api/projects', projectTimeTrackingRoutes)
 app.use('/api/projects', projectCustomFieldRoutes)
 app.use('/api/projects', projectAutomationRoutes)
 app.use('/api/projects', projectWebhookRoutes)
+app.use('/api/projects', projectScheduledTaskRoutes)
 app.use('/api/boards', boardRoutes)
 app.use('/api/boards', boardCardRoutes)
 app.use('/api/cards', cardRoutes)
@@ -71,6 +76,7 @@ app.use('/api/time-entries', timeTrackingRoutes)
 app.use('/api/custom-fields', customFieldRoutes)
 app.use('/api/automation-rules', automationRoutes)
 app.use('/api/webhooks', webhookRoutes)
+app.use('/api/scheduled-tasks', scheduledTaskRoutes)
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -99,6 +105,9 @@ const startServer = async () => {
     // Initialize Socket.io
     initializeSocket(io)
 
+    // Initialize Scheduler
+    await initializeScheduler()
+
     // Start server
     httpServer.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`)
@@ -115,6 +124,22 @@ startServer()
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, closing server...')
+
+  // Stop all scheduled tasks
+  stopAllTasks()
+
+  httpServer.close(() => {
+    console.log('Server closed')
+    process.exit(0)
+  })
+})
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, closing server...')
+
+  // Stop all scheduled tasks
+  stopAllTasks()
+
   httpServer.close(() => {
     console.log('Server closed')
     process.exit(0)
