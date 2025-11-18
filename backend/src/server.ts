@@ -17,6 +17,8 @@ import projectRoutes from './routes/projects'
 import boardRoutes, { projectBoardRoutes } from './routes/boards'
 import cardRoutes, { boardCardRoutes } from './routes/cards'
 import sprintRoutes, { projectSprintRoutes } from './routes/sprints'
+import timeTrackingRoutes, { projectTimeTrackingRoutes } from './routes/timeTracking'
+import customFieldRoutes, { projectCustomFieldRoutes } from './routes/customFields'
 
 // Load environment variables
 dotenv.config()
@@ -55,10 +57,14 @@ app.use('/api/auth', authRoutes)
 app.use('/api/projects', projectRoutes)
 app.use('/api/projects', projectBoardRoutes)
 app.use('/api/projects', projectSprintRoutes)
+app.use('/api/projects', projectTimeTrackingRoutes)
+app.use('/api/projects', projectCustomFieldRoutes)
 app.use('/api/boards', boardRoutes)
 app.use('/api/boards', boardCardRoutes)
 app.use('/api/cards', cardRoutes)
 app.use('/api/sprints', sprintRoutes)
+app.use('/api/time-entries', timeTrackingRoutes)
+app.use('/api/custom-fields', customFieldRoutes)
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

@@ -10,6 +10,8 @@ import {
   TeamOutlined,
   HistoryOutlined,
   ScheduleOutlined,
+  ClockCircleOutlined,
+  SettingOutlined,
 } from '@ant-design/icons'
 import KanbanBoard from '@/components/Board/KanbanBoard'
 import SprintBoard from '@/components/Sprint/SprintBoard'
@@ -17,6 +19,10 @@ import AnalyticsDashboard from '@/components/Analytics/AnalyticsDashboard'
 import ResourceAllocation from '@/components/Analytics/ResourceAllocation'
 import GanttChart from '@/components/Gantt/GanttChart'
 import ActivityFeed from '@/components/Notifications/ActivityFeed'
+import TimeTracker from '@/components/TimeTracking/TimeTracker'
+import TimeEntryList from '@/components/TimeTracking/TimeEntryList'
+import TimeReport from '@/components/TimeTracking/TimeReport'
+import CustomFieldBuilder from '@/components/CustomFields/CustomFieldBuilder'
 
 const { Sider, Content } = Layout
 
@@ -51,6 +57,16 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
       label: 'Resources',
     },
     {
+      key: 'time-tracking',
+      icon: <ClockCircleOutlined />,
+      label: 'Time Tracking',
+    },
+    {
+      key: 'custom-fields',
+      icon: <SettingOutlined />,
+      label: 'Custom Fields',
+    },
+    {
       key: 'activity',
       icon: <HistoryOutlined />,
       label: 'Activity',
@@ -69,6 +85,16 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         return <AnalyticsDashboard projectId={projectId} />
       case 'resources':
         return <ResourceAllocation projectId={projectId} />
+      case 'time-tracking':
+        return (
+          <div className="space-y-6">
+            <TimeTracker projectId={projectId} />
+            <TimeEntryList projectId={projectId} />
+            <TimeReport projectId={projectId} />
+          </div>
+        )
+      case 'custom-fields':
+        return <CustomFieldBuilder projectId={projectId} />
       case 'activity':
         return <ActivityFeed projectId={projectId} />
       default:

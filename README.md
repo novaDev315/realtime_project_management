@@ -70,6 +70,34 @@ A cutting-edge real-time collaborative project management platform with live Kan
 - Time range filtering
 - Export capabilities
 
+#### 7. Time Tracking Integration
+- Start/Stop timer functionality with live elapsed time
+- Track time against specific cards or projects
+- Billable vs non-billable time tracking
+- Time entry management (create, edit, delete)
+- Approval workflow for time entries
+- Comprehensive time reports:
+  - Group by user or card
+  - Date range filtering
+  - Billable/non-billable breakdown
+  - CSV export functionality
+- Tags for categorizing time entries
+- Real-time duration calculation
+
+#### 8. Custom Fields & Forms
+- Dynamic custom field creation with 11 field types:
+  - Text, Number, Date
+  - Select (single/multiple)
+  - Checkbox, URL, Email, Phone
+  - File upload
+  - Calculated fields (formula-based)
+- Field validation rules (required, min/max, pattern)
+- Conditional logic (show/hide fields based on other values)
+- Apply fields to cards, projects, or sprints
+- Field reordering and duplication
+- Position-based ordering
+- Flexible form builder interface
+
 ## Tech Stack
 
 ### Frontend
@@ -228,6 +256,25 @@ NEXT_PUBLIC_WS_URL=ws://localhost:5000
 - `POST /api/sprints/:id/cards/:cardId` - Add card to sprint
 - `DELETE /api/sprints/:id/cards/:cardId` - Remove card from sprint
 
+#### Time Tracking
+- `GET /api/projects/:projectId/time-entries` - Get time entries (filterable)
+- `POST /api/projects/:projectId/time-entries` - Create time entry
+- `POST /api/projects/:projectId/time-entries/start` - Start timer
+- `GET /api/projects/:projectId/time-report` - Get aggregated time report
+- `PUT /api/time-entries/:id` - Update time entry
+- `DELETE /api/time-entries/:id` - Delete time entry
+- `POST /api/time-entries/:id/stop` - Stop timer
+- `POST /api/time-entries/:id/approve` - Approve time entry
+
+#### Custom Fields
+- `GET /api/projects/:projectId/custom-fields` - List custom fields
+- `POST /api/projects/:projectId/custom-fields` - Create custom field
+- `POST /api/projects/:projectId/custom-fields/reorder` - Reorder fields
+- `GET /api/custom-fields/:id` - Get custom field details
+- `PUT /api/custom-fields/:id` - Update custom field
+- `DELETE /api/custom-fields/:id` - Delete custom field
+- `POST /api/custom-fields/:id/duplicate` - Duplicate custom field
+
 ### WebSocket Events
 
 #### Client → Server
@@ -279,9 +326,16 @@ frontend/src/
 │   │   └── ResourceAllocation.tsx   # Team resources
 │   ├── Gantt/
 │   │   └── GanttChart.tsx      # Timeline view
-│   └── Notifications/
-│       ├── NotificationCenter.tsx   # Notification bell
-│       └── ActivityFeed.tsx    # Activity timeline
+│   ├── Notifications/
+│   │   ├── NotificationCenter.tsx   # Notification bell
+│   │   └── ActivityFeed.tsx    # Activity timeline
+│   ├── TimeTracking/
+│   │   ├── TimeTracker.tsx     # Timer start/stop
+│   │   ├── TimeEntryList.tsx   # Time entry management
+│   │   └── TimeReport.tsx      # Time analytics
+│   └── CustomFields/
+│       ├── CustomFieldBuilder.tsx   # Field management
+│       └── CustomFieldRenderer.tsx  # Form renderer
 ├── store/
 │   ├── store.ts                # Redux store
 │   └── slices/
@@ -305,19 +359,25 @@ backend/src/
 │   ├── Project.ts              # Project model
 │   ├── Board.ts                # Board model
 │   ├── Card.ts                 # Card model
-│   └── Sprint.ts               # Sprint model
+│   ├── Sprint.ts               # Sprint model
+│   ├── TimeEntry.ts            # Time tracking model
+│   └── CustomField.ts          # Custom fields model
 ├── controllers/
 │   ├── authController.ts       # Auth logic
 │   ├── projectController.ts    # Project CRUD
 │   ├── boardController.ts      # Board CRUD
 │   ├── cardController.ts       # Card CRUD
-│   └── sprintController.ts     # Sprint CRUD
+│   ├── sprintController.ts     # Sprint CRUD
+│   ├── timeTrackingController.ts  # Time tracking logic
+│   └── customFieldController.ts   # Custom fields logic
 ├── routes/
 │   ├── auth.ts                 # Auth routes
 │   ├── projects.ts             # Project routes
 │   ├── boards.ts               # Board routes
 │   ├── cards.ts                # Card routes
-│   └── sprints.ts              # Sprint routes
+│   ├── sprints.ts              # Sprint routes
+│   ├── timeTracking.ts         # Time tracking routes
+│   └── customFields.ts         # Custom fields routes
 ├── middleware/
 │   └── auth.ts                 # JWT middleware
 ├── socket/
@@ -391,6 +451,10 @@ All users see changes instantly:
 - WebSocket Infrastructure
 - Database Models & API
 - Redis Integration
+
+✅ Phase 2 Should-Have Features:
+- Time Tracking Integration
+- Custom Fields & Forms
 
 ## Future Enhancements (Post-MVP)
 - AI-powered insights and predictions
