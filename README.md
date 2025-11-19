@@ -191,23 +191,115 @@ A cutting-edge real-time collaborative project management platform with live Kan
 - Enable/disable scheduled tasks
 - Graceful shutdown with task cleanup
 
+#### 15. AI-Powered Insights (OpenAI Integration) 🤖
+- **Sprint Prediction:**
+  - Predict sprint completion likelihood
+  - Confidence scoring (0-100%)
+  - Estimated completion date
+  - Recommended actions for at-risk sprints
+- **Automated Retrospectives:**
+  - AI-generated "What Went Well" insights
+  - "What Could Improve" recommendations
+  - Actionable items from sprint data
+  - Team sentiment analysis
+- **Natural Language Task Generation:**
+  - Generate tasks from plain English descriptions
+  - Automatic story point estimation
+  - Task dependency detection
+  - Priority assignment
+- **Meeting Summarization:**
+  - Transcript summarization
+  - Key points extraction
+  - Action item identification
+  - Decision tracking
+- **Risk Prediction:**
+  - AI-powered risk analysis
+  - Severity and probability scoring
+  - Impact assessment
+  - Mitigation strategies
+- **Resource Optimization:**
+  - Workload balancing recommendations
+  - Task reassignment suggestions
+  - Efficiency scoring
+- **AI Chat Assistant:**
+  - Natural language project queries
+  - Context-aware responses
+  - Project management guidance
+
+#### 16. Offline Mode & Progressive Web App 📱
+- **ServiceWorker Implementation:**
+  - Automatic asset caching
+  - Cache-first strategy for static resources
+  - Network-first with offline fallback for API calls
+  - Background sync support
+- **IndexedDB Storage:**
+  - Offline data persistence
+  - Boards, cards, sprints cached locally
+  - Sync queue for offline changes
+  - Automatic sync when online
+- **Offline Capabilities:**
+  - View cached boards and cards
+  - Create and edit tasks offline
+  - Browse sprint data and analytics
+  - Access project information
+  - Changes sync automatically when connection restored
+- **PWA Features:**
+  - Installable as desktop/mobile app
+  - Offline-first architecture
+  - Push notifications support
+  - Background sync
+  - Responsive offline page
+
+#### 17. Video & Screen Sharing (WebRTC) 🎥
+- **Real-Time Video Calls:**
+  - Multi-participant video conferencing
+  - WebRTC peer-to-peer connections
+  - Adaptive video quality
+  - Low-latency communication
+- **Screen Sharing:**
+  - Share entire screen or specific window
+  - High-quality screen streaming
+  - Mouse cursor tracking
+  - One-click toggle on/off
+- **Call Controls:**
+  - Mute/unmute microphone
+  - Enable/disable camera
+  - Picture-in-picture local view
+  - Participant count display
+- **WebRTC Features:**
+  - STUN/TURN server support
+  - ICE candidate negotiation
+  - Automatic reconnection
+  - Socket.io signaling
+  - Google STUN servers integration
+- **User Experience:**
+  - Grid layout for multiple participants
+  - Name labels on video feeds
+  - Visual indicators for muted users
+  - Responsive video tiles
+  - Leave call functionality
+
 ## Tech Stack
 
 ### Frontend
-- React 18+ with Next.js 14
+- React 18+ with Next.js 14 (App Router)
 - TypeScript 5.0+
-- Socket.io-client 4.5+ for real-time communication
+- Socket.io-client 4.5+ for real-time communication & WebRTC signaling
 - Redux Toolkit for state management
 - Ant Design 5.0 + Tailwind CSS for UI
-- React DnD Kit for drag-and-drop functionality
+- React DnD Kit (@dnd-kit) for drag-and-drop functionality
 - Recharts for data visualization
 - date-fns & dayjs for date handling
 - Axios for HTTP requests
+- **WebRTC APIs** for peer-to-peer video/audio streaming
+- **ServiceWorker API** for offline functionality
+- **IndexedDB** for client-side data persistence
+- **Push Notifications API** for real-time alerts
 
 ### Backend
 - Node.js 20 LTS
 - Express 4.18+ for REST API
-- Socket.io 4.5+ for WebSocket server
+- Socket.io 4.5+ for WebSocket server (including WebRTC signaling)
 - @socket.io/redis-adapter for horizontal scaling
 - TypeScript 5.0+
 - MongoDB 6.0 with Mongoose ODM
@@ -217,8 +309,10 @@ A cutting-edge real-time collaborative project management platform with live Kan
 - Helmet for security headers
 - Morgan for logging
 - Compression middleware
-- node-cron for scheduled task execution
-- cron-parser for cron expression parsing
+- **node-cron** for scheduled task execution
+- **cron-parser** for cron expression parsing
+- **OpenAI API** / OpenRouter for AI-powered insights
+- **Axios** for HTTP requests to external AI services
 
 ## Project Structure
 

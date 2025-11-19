@@ -16,6 +16,8 @@ import {
   ApiOutlined,
   ThunderboltOutlined,
   TrophyOutlined,
+  RobotOutlined,
+  VideoCameraOutlined,
 } from '@ant-design/icons'
 import KanbanBoard from '@/components/Board/KanbanBoard'
 import SprintBoard from '@/components/Sprint/SprintBoard'
@@ -33,6 +35,8 @@ import AvailabilityCalendar from '@/components/Resource/AvailabilityCalendar'
 import AutomationRules from '@/components/Automation/AutomationRules'
 import WebhookManager from '@/components/Automation/WebhookManager'
 import ScheduledTaskManager from '@/components/Automation/ScheduledTaskManager'
+import AIInsights from '@/components/AI/AIInsights'
+import VideoCall from '@/components/Video/VideoCall'
 
 const { Sider, Content } = Layout
 
@@ -107,6 +111,16 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
       label: 'Scheduled Tasks',
     },
     {
+      key: 'ai-insights',
+      icon: <RobotOutlined />,
+      label: 'AI Insights',
+    },
+    {
+      key: 'video-call',
+      icon: <VideoCameraOutlined />,
+      label: 'Video Call',
+    },
+    {
       key: 'activity',
       icon: <HistoryOutlined />,
       label: 'Activity',
@@ -154,6 +168,10 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         return <WebhookManager projectId={projectId} />
       case 'scheduled-tasks':
         return <ScheduledTaskManager projectId={projectId} />
+      case 'ai-insights':
+        return <AIInsights projectId={projectId} sprintId="demo-sprint-1" />
+      case 'video-call':
+        return <VideoCall roomId={projectId} />
       case 'activity':
         return <ActivityFeed projectId={projectId} />
       default:

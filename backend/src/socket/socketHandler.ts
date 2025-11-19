@@ -169,6 +169,45 @@ export const initializeSocket = (io: Server) => {
       })
     })
 
+    // WebRTC signaling events
+    socket.on('webrtc:join-room', ({ roomId }) => {
+      socket.join(`webrtc:${roomId}`)
+      socket.to(`webrtc:${roomId}`).emit('webrtc:user-joined', {
+        userId: socket.user!.userId,
+        userName: socket.user!.name,
+      })
+      console.log(`User ${socket.user?.userId} joined WebRTC room ${roomId}`)
+    })
+
+    socket.on('webrtc:leave-room', ({ roomId }) => {
+      socket.leave(`webrtc:${roomId}`)
+      socket.to(`webrtc:${roomId}`).emit('webrtc:user-left', {
+        userId: socket.user!.userId,
+      })
+      console.log(`User ${socket.user?.userId} left WebRTC room ${roomId}`)
+    })
+
+    socket.on('webrtc:offer', ({ to, offer }) => {
+      io.to(to).emit('webrtc:offer', {
+        from: socket.user!.userId,
+        offer,
+      })
+    })
+
+    socket.on('webrtc:answer', ({ to, answer }) => {
+      io.to(to).emit('webrtc:answer', {
+        from: socket.user!.userId,
+        answer,
+      })
+    })
+
+    socket.on('webrtc:ice-candidate', ({ to, candidate }) => {
+      io.to(to).emit('webrtc:ice-candidate', {
+        from: socket.user!.userId,
+        candidate,
+      })
+    })
+
     // Disconnect
     socket.on('disconnect', () => {
       // Remove user from all boards

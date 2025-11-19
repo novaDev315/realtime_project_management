@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Realtime Project Management</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+      max-width: 600px;
+    }
+
+    .icon {
+      font-size: 120px;
+      margin-bottom: 2rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 1.25rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+
+    .info {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-top: 2rem;
+      text-align: left;
+    }
+
+    .info h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .info ul {
+      list-style: none;
+      margin-left: 0;
+    }
+
+    .info li {
+      padding: 0.5rem 0;
+      padding-left: 2rem;
+      position: relative;
+    }
+
+    .info li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #4ade80;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    button {
+      background: #fff;
+      color: #667eea;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 1rem;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .status {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">📡</div>
+    <h1>You're Offline</h1>
+    <p>No internet connection detected. Don't worry, you can still work!</p>
+
+    <div class="status" id="status">
+      Checking connection...
+    </div>
+
+    <div class="info">
+      <h2>While Offline, You Can:</h2>
+      <ul>
+        <li>View previously loaded boards and cards</li>
+        <li>Create and edit tasks (will sync when online)</li>
+        <li>Browse sprint data and analytics</li>
+        <li>Access cached project information</li>
+        <li>View team member details</li>
+      </ul>
+    </div>
+
+    <button onclick="checkConnection()">Retry Connection</button>
+  </div>
+
+  <script>
+    function updateStatus() {
+      const status = document.getElementById('status')
+      if (navigator.onLine) {
+        status.textContent = '✓ Back online! Redirecting...'
+        status.style.background = 'rgba(74, 222, 128, 0.3)'
+        setTimeout(() => {
+          window.location.reload()
+        }, 1000)
+      } else {
+        status.textContent = '✗ Still offline'
+        status.style.background = 'rgba(248, 113, 113, 0.3)'
+      }
+    }
+
+    function checkConnection() {
+      updateStatus()
+    }
+
+    // Check connection status on load
+    updateStatus()
+
+    // Listen for online/offline events
+    window.addEventListener('online', updateStatus)
+    window.addEventListener('offline', updateStatus)
+
+    // Periodic check
+    setInterval(updateStatus, 5000)
+  </script>
+</body>
+</html>

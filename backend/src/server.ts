@@ -22,6 +22,7 @@ import customFieldRoutes, { projectCustomFieldRoutes } from './routes/customFiel
 import automationRoutes, { projectAutomationRoutes } from './routes/automation'
 import webhookRoutes, { projectWebhookRoutes } from './routes/webhooks'
 import scheduledTaskRoutes, { projectScheduledTaskRoutes } from './routes/scheduledTasks'
+import aiRoutes from './routes/ai'
 
 // Services
 import { initializeScheduler, stopAllTasks } from './services/schedulerService'
@@ -77,6 +78,7 @@ app.use('/api/custom-fields', customFieldRoutes)
 app.use('/api/automation-rules', automationRoutes)
 app.use('/api/webhooks', webhookRoutes)
 app.use('/api/scheduled-tasks', scheduledTaskRoutes)
+app.use('/api/ai', aiRoutes)
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
