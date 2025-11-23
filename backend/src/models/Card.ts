@@ -24,6 +24,11 @@ interface IHistoryEvent {
   timestamp: Date
 }
 
+interface IDependency {
+  cardId: mongoose.Types.ObjectId
+  type: 'blocks' | 'blocked_by' | 'relates_to'
+}
+
 export interface ICard extends Document {
   title: string
   description: string
@@ -39,6 +44,8 @@ export interface ICard extends Document {
   history: IHistoryEvent[]
   position: number
   sprintId?: mongoose.Types.ObjectId
+  dependencies: IDependency[]
+  blocked: boolean
   createdBy: mongoose.Types.ObjectId
   createdAt: Date
   updatedAt: Date
@@ -116,6 +123,22 @@ const historyEventSchema = new Schema<IHistoryEvent>(
   { _id: false }
 )
 
+const dependencySchema = new Schema<IDependency>(
+  {
+    cardId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Card',
+      required: true,
+    },
+    type: {
+      type: String,
+      enum: ['blocks', 'blocked_by', 'relates_to'],
+      required: true,
+    },
+  },
+  { _id: true }
+)
+
 const cardSchema = new Schema<ICard>(
   {
     title: {
@@ -164,6 +187,11 @@ const cardSchema = new Schema<ICard>(
     sprintId: {
       type: Schema.Types.ObjectId,
       ref: 'Sprint',
+    },
+    dependencies: [dependencySchema],
+    blocked: {
+      type: Boolean,
+      default: false,
     },
     createdBy: {
       type: Schema.Types.ObjectId,

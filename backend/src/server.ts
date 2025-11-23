@@ -23,6 +23,11 @@ import automationRoutes, { projectAutomationRoutes } from './routes/automation'
 import webhookRoutes, { projectWebhookRoutes } from './routes/webhooks'
 import scheduledTaskRoutes, { projectScheduledTaskRoutes } from './routes/scheduledTasks'
 import aiRoutes from './routes/ai'
+import templateRoutes from './routes/templates'
+import searchRoutes from './routes/search'
+import reportRoutes from './routes/reports'
+import dependencyRoutes from './routes/dependencies'
+import bulkRoutes from './routes/bulk'
 
 // Services
 import { initializeScheduler, stopAllTasks } from './services/schedulerService'
@@ -79,6 +84,11 @@ app.use('/api/automation-rules', automationRoutes)
 app.use('/api/webhooks', webhookRoutes)
 app.use('/api/scheduled-tasks', scheduledTaskRoutes)
 app.use('/api/ai', aiRoutes)
+app.use('/api/templates', templateRoutes)
+app.use('/api/search', searchRoutes)
+app.use('/api/reports', reportRoutes)
+app.use('/api/dependencies', dependencyRoutes)
+app.use('/api/bulk', bulkRoutes)
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
