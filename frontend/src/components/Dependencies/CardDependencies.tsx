@@ -33,7 +33,8 @@ interface Dependency {
   cardId: {
     _id: string
     title: string
-    status: string
+    status?: string
+    columnId?: string
     priority: string
   }
   type: 'blocks' | 'blocked_by' | 'relates_to'
@@ -50,7 +51,6 @@ interface CardDependenciesProps {
 interface BoardCard {
   _id: string
   title: string
-  status: string
   columnId: string
 }
 
@@ -228,9 +228,6 @@ export default function CardDependencies({
               title={dep.cardId?.title || 'Unknown Card'}
               description={
                 <Space size="small">
-                  <Tag color={getStatusColor(dep.cardId?.status)}>
-                    {dep.cardId?.status || 'unknown'}
-                  </Tag>
                   <Tag color={getPriorityColor(dep.cardId?.priority)}>
                     {dep.cardId?.priority || 'medium'}
                   </Tag>

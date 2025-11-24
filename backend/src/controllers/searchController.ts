@@ -65,8 +65,13 @@ export const globalSearch = async (req: Request, res: Response) => {
 
     // Search Cards
     if (!type || type === 'card') {
+      // Get boards for user's projects
+      const boards = await Board.find({ projectId: { $in: projectIds } })
+      const boardIds = boards.map(b => b._id)
+      const boardToProjectMap = new Map(boards.map(b => [b._id.toString(), b.projectId.toString()]))
+
       const cardQuery: any = {
-        projectId: { $in: projectIds },
+        boardId: { $in: boardIds },
         $or: [
           { title: searchRegex },
           { description: searchRegex },
@@ -74,32 +79,37 @@ export const globalSearch = async (req: Request, res: Response) => {
         ]
       }
 
+      // Filter by board's projectId if specified
       if (projectId) {
-        cardQuery.projectId = projectId
+        const projectBoards = boards.filter(b => b.projectId.toString() === projectId)
+        cardQuery.boardId = { $in: projectBoards.map(b => b._id) }
       }
-      if (status) {
-        cardQuery.status = status
-      }
+
       if (assignee) {
-        cardQuery.assignee = assignee
+        cardQuery.assignees = assignee
       }
       if (priority) {
         cardQuery.priority = priority
       }
 
       const cards = await Card.find(cardQuery)
-        .populate('assignee', 'name')
+        .populate('assignees', 'name')
+        .populate('boardId')
         .limit(30)
 
       for (const card of cards) {
-        const projectName = projectMap.get(card.projectId.toString()) || 'Unknown'
+        const cardProjectId = boardToProjectMap.get(card.boardId?.toString() || '')
+        const projectName = cardProjectId ? projectMap.get(cardProjectId) : 'Unknown'
+        const board = card.boardId as any
+        const column = board?.columns?.find((col: any) => col._id?.toString() === card.columnId?.toString())
+
         results.push({
           type: 'card',
           id: card._id.toString(),
           title: card.title,
           description: card.description?.substring(0, 100),
-          status: card.status,
-          projectId: card.projectId.toString(),
+          status: column?.name || 'Unknown',
+          projectId: cardProjectId,
           projectName,
           highlight: getHighlight(card.title + ' ' + (card.description || ''), searchQuery),
           score: card.title.toLowerCase().includes(searchQuery.toLowerCase()) ? 8 : 3
@@ -185,12 +195,16 @@ export const quickSearch = async (req: Request, res: Response) => {
 
     const projectIds = userProjects.map(p => p._id)
 
+    // Get boards for these projects
+    const boards = await Board.find({ projectId: { $in: projectIds } })
+    const boardIds = boards.map(b => b._id)
+
     // Quick search - limited results
     const [cards, projects] = await Promise.all([
       Card.find({
-        projectId: { $in: projectIds },
+        boardId: { $in: boardIds },
         title: searchRegex
-      }).select('title projectId status').limit(5),
+      }).select('title boardId columnId').populate('boardId').limit(5),
 
       Project.find({
         _id: { $in: projectIds },
@@ -204,12 +218,16 @@ export const quickSearch = async (req: Request, res: Response) => {
         id: p._id,
         title: p.name
       })),
-      ...cards.map(c => ({
-        type: 'card' as const,
-        id: c._id,
-        title: c.title,
-        status: c.status
-      }))
+      ...cards.map(c => {
+        const board = c.boardId as any
+        const column = board?.columns?.find((col: any) => col._id?.toString() === c.columnId?.toString())
+        return {
+          type: 'card' as const,
+          id: c._id,
+          title: c.title,
+          status: column?.name || 'Unknown'
+        }
+      })
     ]
 
     res.json({ results })
@@ -301,9 +319,14 @@ export const advancedSearch = async (req: Request, res: Response) => {
     const searchRegex = query ? new RegExp(query, 'i') : null
     const results: any[] = []
 
+    // Get boards for these projects
+    const boards = await Board.find({ projectId: { $in: projectIds } })
+    const boardIds = boards.map(b => b._id)
+    const boardToProjectMap = new Map(boards.map(b => [b._id.toString(), b.projectId]))
+
     // Build card query
     if (!types || types.includes('card')) {
-      const cardQuery: any = { projectId: { $in: projectIds } }
+      const cardQuery: any = { boardId: { $in: boardIds } }
 
       if (searchRegex) {
         cardQuery.$or = [
@@ -311,9 +334,9 @@ export const advancedSearch = async (req: Request, res: Response) => {
           { description: searchRegex }
         ]
       }
-      if (status && status.length > 0) cardQuery.status = { $in: status }
+      // Note: status filter removed as cards use columnId, not status
       if (priority && priority.length > 0) cardQuery.priority = { $in: priority }
-      if (assignees && assignees.length > 0) cardQuery.assignee = { $in: assignees }
+      if (assignees && assignees.length > 0) cardQuery.assignees = { $in: assignees }
       if (labels && labels.length > 0) cardQuery.labels = { $in: labels }
       if (dateFrom || dateTo) {
         cardQuery.createdAt = {}
@@ -324,12 +347,22 @@ export const advancedSearch = async (req: Request, res: Response) => {
       if (isBlocked) cardQuery.blocked = true
 
       const cards = await Card.find(cardQuery)
-        .populate('assignee', 'name avatar')
-        .populate('projectId', 'name')
+        .populate('assignees', 'name avatar')
+        .populate('boardId')
         .skip((page - 1) * limit)
         .limit(limit)
 
-      results.push(...cards.map(c => ({ ...c.toObject(), type: 'card' })))
+      results.push(...cards.map(c => {
+        const board = c.boardId as any
+        const column = board?.columns?.find((col: any) => col._id?.toString() === c.columnId?.toString())
+        const cardProjectId = boardToProjectMap.get(c.boardId?.toString() || '')
+        return {
+          ...c.toObject(),
+          type: 'card',
+          status: column?.name || 'Unknown',
+          projectId: cardProjectId
+        }
+      }))
     }
 
     // Sort results

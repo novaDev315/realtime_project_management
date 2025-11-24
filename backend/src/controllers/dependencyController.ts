@@ -100,7 +100,7 @@ export const addDependency = async (req: Request, res: Response) => {
 
     // Populate and return the updated card
     const updatedCard = await Card.findById(cardId)
-      .populate('dependencies.cardId', 'title status priority')
+      .populate('dependencies.cardId', 'title priority columnId')
       .populate('assignees', 'name email avatar')
 
     res.json(updatedCard)
@@ -179,7 +179,7 @@ export const removeDependency = async (req: Request, res: Response) => {
     }
 
     const updatedCard = await Card.findById(cardId)
-      .populate('dependencies.cardId', 'title status priority')
+      .populate('dependencies.cardId', 'title priority columnId')
       .populate('assignees', 'name email avatar')
 
     res.json(updatedCard)
@@ -194,7 +194,7 @@ export const getDependencies = async (req: Request, res: Response) => {
     const { cardId } = req.params
 
     const card = await Card.findById(cardId)
-      .populate('dependencies.cardId', 'title status priority columnId')
+      .populate('dependencies.cardId', 'title priority columnId boardId')
 
     if (!card) {
       return res.status(404).json({ error: 'Card not found' })
@@ -223,13 +223,12 @@ export const getDependencyGraph = async (req: Request, res: Response) => {
     const { boardId } = req.params
 
     const cards = await Card.find({ boardId })
-      .select('title status columnId dependencies blocked')
+      .select('title columnId dependencies blocked')
 
     // Build graph data for visualization
     const nodes = cards.map(card => ({
       id: card._id.toString(),
       title: card.title,
-      status: card.status,
       columnId: card.columnId?.toString(),
       blocked: card.blocked,
     }))

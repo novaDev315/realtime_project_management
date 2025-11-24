@@ -9,42 +9,62 @@ export const getSprintReport = async (req: Request, res: Response) => {
   try {
     const { sprintId } = req.params
 
-    const sprint = await Sprint.findById(sprintId)
+    const sprint = await Sprint.findById(sprintId).populate('boardId')
     if (!sprint) {
       return res.status(404).json({ error: 'Sprint not found' })
     }
 
     const cards = await Card.find({ sprintId })
-      .populate('assignee', 'name email')
+      .populate('assignees', 'name email')
+      .populate('boardId')
 
     const timeEntries = await TimeEntry.find({
       cardId: { $in: cards.map(c => c._id) }
     })
 
+    // Get board to find "Done" column
+    const board = sprint.boardId as any
+    const doneColumn = board?.columns?.find((col: any) =>
+      col.name.toLowerCase() === 'done' || col.name.toLowerCase() === 'completed'
+    )
+    const doneColumnId = doneColumn?._id?.toString()
+
     // Calculate metrics
     const totalCards = cards.length
-    const completedCards = cards.filter(c => c.status === 'done').length
+    const completedCards = cards.filter(c => c.columnId?.toString() === doneColumnId).length
     const totalPoints = cards.reduce((sum, c) => sum + (c.storyPoints || 0), 0)
-    const completedPoints = cards.filter(c => c.status === 'done')
+    const completedPoints = cards.filter(c => c.columnId?.toString() === doneColumnId)
       .reduce((sum, c) => sum + (c.storyPoints || 0), 0)
 
     const totalTimeMinutes = timeEntries.reduce((sum, t) => sum + (t.duration || 0), 0)
     const billableMinutes = timeEntries.filter(t => t.billable)
       .reduce((sum, t) => sum + (t.duration || 0), 0)
 
-    // Cards by status
+    // Cards by column (status)
     const cardsByStatus = cards.reduce((acc: any, card) => {
-      acc[card.status] = (acc[card.status] || 0) + 1
+      const column = board?.columns?.find((col: any) => col._id?.toString() === card.columnId?.toString())
+      const columnName = column?.name || 'Unknown'
+      acc[columnName] = (acc[columnName] || 0) + 1
       return acc
     }, {})
 
     // Cards by assignee
     const cardsByAssignee = cards.reduce((acc: any, card) => {
-      const name = (card.assignee as any)?.name || 'Unassigned'
-      if (!acc[name]) acc[name] = { total: 0, completed: 0, points: 0 }
-      acc[name].total += 1
-      if (card.status === 'done') acc[name].completed += 1
-      acc[name].points += card.storyPoints || 0
+      const assignees = card.assignees as any[]
+      if (!assignees || assignees.length === 0) {
+        if (!acc['Unassigned']) acc['Unassigned'] = { total: 0, completed: 0, points: 0 }
+        acc['Unassigned'].total += 1
+        acc['Unassigned'].points += card.storyPoints || 0
+        if (card.columnId?.toString() === doneColumnId) acc['Unassigned'].completed += 1
+      } else {
+        assignees.forEach(assignee => {
+          const name = assignee.name || 'Unknown'
+          if (!acc[name]) acc[name] = { total: 0, completed: 0, points: 0 }
+          acc[name].total += 1
+          acc[name].points += card.storyPoints || 0
+          if (card.columnId?.toString() === doneColumnId) acc[name].completed += 1
+        })
+      }
       return acc
     }, {})
 
@@ -65,7 +85,7 @@ export const getSprintReport = async (req: Request, res: Response) => {
 
       // Count actual completed points up to this date
       const completedByDate = cards
-        .filter(c => c.status === 'done' && c.updatedAt && new Date(c.updatedAt) <= date)
+        .filter(c => c.columnId?.toString() === doneColumnId && c.updatedAt && new Date(c.updatedAt) <= date)
         .reduce((sum, c) => sum + (c.storyPoints || 0), 0)
 
       burndownData.push({
@@ -101,13 +121,17 @@ export const getSprintReport = async (req: Request, res: Response) => {
         ...data
       })),
       burndownData,
-      cards: cards.map(c => ({
-        title: c.title,
-        status: c.status,
-        priority: c.priority,
-        storyPoints: c.storyPoints,
-        assignee: (c.assignee as any)?.name || 'Unassigned'
-      })),
+      cards: cards.map(c => {
+        const column = board?.columns?.find((col: any) => col._id?.toString() === c.columnId?.toString())
+        const assignees = c.assignees as any[]
+        return {
+          title: c.title,
+          status: column?.name || 'Unknown',
+          priority: c.priority,
+          storyPoints: c.storyPoints,
+          assignee: assignees?.length > 0 ? assignees.map(a => a.name).join(', ') : 'Unassigned'
+        }
+      }),
       generatedAt: new Date().toISOString()
     }
 
@@ -138,16 +162,38 @@ export const getProjectReport = async (req: Request, res: Response) => {
     if (from || to) sprintQuery.startDate = dateFilter
 
     const sprints = await Sprint.find(sprintQuery).sort({ startDate: -1 })
-    const cards = await Card.find({ projectId }).populate('assignee', 'name')
-    const timeEntries = await TimeEntry.find({ projectId })
+
+    // Get all boards for this project
+    const { Board } = await import('../models/Board')
+    const boards = await Board.find({ projectId })
+    const boardIds = boards.map(b => b._id)
+
+    // Find "Done" columns across all boards
+    const doneColumnIds = boards.flatMap(board =>
+      board.columns
+        .filter(col => col.name.toLowerCase() === 'done' || col.name.toLowerCase() === 'completed')
+        .map(col => col._id.toString())
+    )
+
+    // Get cards from all project boards
+    const cards = await Card.find({ boardId: { $in: boardIds } })
+      .populate('assignees', 'name')
+      .populate('boardId')
+
+    const timeEntries = await TimeEntry.find({
+      cardId: { $in: cards.map(c => c._id) }
+    })
 
     // Overall metrics
     const totalCards = cards.length
-    const completedCards = cards.filter(c => c.status === 'done').length
-    const blockedCards = cards.filter(c => c.blocked).length
-    const overdueCards = cards.filter(c =>
-      c.dueDate && new Date(c.dueDate) < new Date() && c.status !== 'done'
+    const completedCards = cards.filter(c =>
+      c.columnId && doneColumnIds.includes(c.columnId.toString())
     ).length
+    const blockedCards = cards.filter(c => c.blocked).length
+    const overdueCards = cards.filter(c => {
+      const isDone = c.columnId && doneColumnIds.includes(c.columnId.toString())
+      return c.dueDate && new Date(c.dueDate) < new Date() && !isDone
+    }).length
 
     // Sprint velocity history
     const velocityHistory = sprints
@@ -161,12 +207,28 @@ export const getProjectReport = async (req: Request, res: Response) => {
 
     // Team performance
     const teamPerformance = cards.reduce((acc: any, card) => {
-      const name = (card.assignee as any)?.name || 'Unassigned'
-      if (!acc[name]) acc[name] = { completed: 0, inProgress: 0, total: 0, points: 0 }
-      acc[name].total += 1
-      acc[name].points += card.storyPoints || 0
-      if (card.status === 'done') acc[name].completed += 1
-      if (card.status === 'in_progress') acc[name].inProgress += 1
+      const assignees = card.assignees as any[]
+      const isDone = card.columnId && doneColumnIds.includes(card.columnId.toString())
+      const board = card.boardId as any
+      const column = board?.columns?.find((col: any) => col._id?.toString() === card.columnId?.toString())
+      const isInProgress = column?.name.toLowerCase().includes('progress') || column?.name.toLowerCase().includes('doing')
+
+      if (!assignees || assignees.length === 0) {
+        if (!acc['Unassigned']) acc['Unassigned'] = { completed: 0, inProgress: 0, total: 0, points: 0 }
+        acc['Unassigned'].total += 1
+        acc['Unassigned'].points += card.storyPoints || 0
+        if (isDone) acc['Unassigned'].completed += 1
+        if (isInProgress) acc['Unassigned'].inProgress += 1
+      } else {
+        assignees.forEach(assignee => {
+          const name = assignee.name || 'Unknown'
+          if (!acc[name]) acc[name] = { completed: 0, inProgress: 0, total: 0, points: 0 }
+          acc[name].total += 1
+          acc[name].points += card.storyPoints || 0
+          if (isDone) acc[name].completed += 1
+          if (isInProgress) acc[name].inProgress += 1
+        })
+      }
       return acc
     }, {})
 
@@ -207,11 +269,15 @@ export const getProjectReport = async (req: Request, res: Response) => {
       recentActivity: cards
         .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
         .slice(0, 10)
-        .map(c => ({
-          title: c.title,
-          status: c.status,
-          updatedAt: c.updatedAt
-        })),
+        .map(c => {
+          const board = c.boardId as any
+          const column = board?.columns?.find((col: any) => col._id?.toString() === c.columnId?.toString())
+          return {
+            title: c.title,
+            status: column?.name || 'Unknown',
+            updatedAt: c.updatedAt
+          }
+        }),
       generatedAt: new Date().toISOString()
     }
 
